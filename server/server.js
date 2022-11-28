@@ -14,12 +14,35 @@ const io = socketio(server, {
 const { f2 } = require('./fisyx2d.js');
 const { ControlsQueue } = require('./controlsQueue.js');
 
-
-var width = 40
-var height = 60
-var gap = 14
-var border = 4
-var physicsStep = 0.001 //seconds
+const constants = {
+    width : 40,
+    height : 60,
+    goalGap : 14,
+    border : 4,
+    physicsStep : 0.001,
+    control : 2000,
+    springLimitDist : 20,
+    pusherBody : {
+        mass: 6,
+        radius: 1.9,
+        inertia: Infinity,
+        elasticity: 0,
+        kFriction: 0.06,
+        sFriction: 0.1
+    },
+    puckBody : {
+        mass: 1,
+        radius: 1.6,
+        elasticity: 0.95,
+        kFriction: 0.06,
+        sFriction: 0.1
+    }
+}
+var width = constants.width
+var height = constants.height
+var gap = constants.goalGap
+var border = constants.border
+var physicsStep = constants.physicsStep //seconds
 
 var mouses = []
 mouses[0] = new f2.Vec2(width / 2, 0.75 * height);
@@ -48,7 +71,7 @@ io.on("connection", function onJoin(client){
         return;
     }
     var plyr = clientPlayer[client.id]
-    client.emit("plyr", {plyr : plyr})
+    client.emit("start", {constants: constants, plyr : plyr})
     var cd = controlsQueues[client.id] = new ControlsQueue()
     cd.addEventListener("mousemove", (e)=>{
         mouses[plyr] = e
@@ -71,15 +94,16 @@ io.listen(process.env.PORT || 3000)
 
 function setupWorld() {
     world = new f2.World({ gravity: 0, scale: 1, gridSize: 4, time: Date.now() / 1000 });
-    var elast = 0.95
-    var kFric = 0.06
-    var sFric = 0.1
-    pushers[0] = new f2.CircleBody({ mass: 6, radius: 1.9, inertia: Infinity, position: new f2.Vec2(width / 2, 0.75 * height), elasticity: 0, kFriction: kFric, sFriction: sFric });
+
+    pushers[0] = new f2.CircleBody(constants.pusherBody);
+    pushers[0].position = new f2.Vec2(width/2, 0.75 * height)
     world.addBody(pushers[0])
 
-    pushers[1] = new f2.CircleBody({ mass: 6, radius: 1.9, inertia: Infinity, position: new f2.Vec2(width / 2, 0.25 * height), elasticity: 0, kFriction: kFric, sFriction: sFric });
+    pushers[1] = new f2.CircleBody(constants.pusherBody);
+    pushers[1].position = new f2.Vec2(width/2, 0.25 * height)
     world.addBody(pushers[1])
-    puck = new f2.CircleBody({ mass: 1, radius: 1.6, position: new f2.Vec2(width / 2, 0.5 * height), velocity: new f2.Vec2(0, 5), elasticity: elast, kFriction: kFric, sFriction: sFric })
+
+    puck = new f2.CircleBody(constants.puckBody)
     // ball = new f2.RectBody({ mass: 1, width: 40, length: 40, position: new f2.Vec2(200, 200) })
     world.addBody(puck);
 
@@ -97,8 +121,8 @@ function setupWorld() {
     world.addBody(floor);
 }
 function moveTo(body, target, dt) {
-    var control = 2000
-    var springLimitDist = 20
+    var control = constants.control
+    var springLimitDist = constants.springLimitDist
     damp = 2 * control ** 0.5
     var position = body.position.subtract(target)
     var vel = body.velocity
