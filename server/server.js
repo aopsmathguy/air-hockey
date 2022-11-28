@@ -97,8 +97,8 @@ function setupWorld() {
     world.addBody(floor);
 }
 function moveTo(body, target, dt) {
-    var control = 1000
-    var springLimitDist = 8
+    var control = 2000
+    var springLimitDist = 20
     damp = 2 * control ** 0.5
     var position = body.position.subtract(target)
     var vel = body.velocity
