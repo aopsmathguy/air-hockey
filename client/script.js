@@ -1,4 +1,4 @@
-const socket = io("http://localhost:3000", { transports: ['websocket', 'polling', 'flashsocket'] })
+const socket = io("https://air-hockey.onrender.com/", { transports: ['websocket', 'polling', 'flashsocket'] })
 
 function pingTest(){
     socket.emit('test', {
