@@ -4,7 +4,7 @@ function pingTest(){
     socket.emit('test', {
         clientSendTime : Date.now()
     })
-    setTimeout(pingTest, 5000)
+    setTimeout(pingTest, 3000)
 }
 var ping = 0;
 var timeDiff = 0;
