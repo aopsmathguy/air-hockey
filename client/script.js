@@ -24,7 +24,9 @@ socket.on('plyr', function(data){
     console.log(plyr)
 })
 socket.on('gameState', function(data){
+
     world.time = data.wTime - timeDiff
+    controlsQueue.removeEvents(world.time)
     for (var i = 0;  i < 2; i++){
         pushers[i].updateDynamics(data.pushersDyn[i])
     }
@@ -72,17 +74,17 @@ document.body.appendChild(canvas)
 var mouses = []
 mouses[0] = new f2.Vec2(width / 2, 0.75 * height);
 mouses[1] = new f2.Vec2(width / 2, 0.25 * height);
-var controlsDelayer = new ControlsDelayer()
-controlsDelayer.addEventListener('mousemove', (e) => {
+var controlsQueue = new ControlsQueue()
+controlsQueue.addEventListener('mousemove', (e) => {
     mouses[plyr] = e
 })
 document.body.addEventListener('mousemove', (e) => {
     var convPos = mouseToBoard(getMousePos(canvas, e))
     socket.emit("mousemove", {
         pos : convPos,
-        time : timeDiff + Date.now() + ping/2
+        time : timeDiff + Date.now()/1000 + ping/2
     })
-    controlsDelayer.handleEventDelay('mousemove', convPos, ping / 2)
+    controlsQueue.addEvent('mousemove', convPos, Date.now()/1000 + ping/2)
 })
 // document.body.addEventListener('keydown', (e) => {
 //     ball.position = new f2.Vec2(200, 200)
@@ -137,6 +139,7 @@ function moveTo(body, target, dt) {
     body.applyImpulse(imp)
 }
 function step(dt) {
+    controlsQueue.handleEvents(world.time, dt)
     moveTo(pushers[0], mouses[0], dt)
     moveTo(pushers[1], mouses[1], dt)
     world.step(dt)
