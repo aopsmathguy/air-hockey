@@ -1,8 +1,13 @@
-
-var ControlsDelayer = class {
-    listeners
+var ControlsQueue = class {
+    listeners;
+    controlsQueue;
+    start;
+    end;
     constructor() {
-        this.listeners = {}
+        this.listeners = {};
+        this.controlsQueue = {};
+        this.start = 0;
+        this.end = 0;
     }
     addEventListener(type, f) {
         if (!this.listeners[type]) {
@@ -18,10 +23,34 @@ var ControlsDelayer = class {
             }
         }
     }
-    handleEventDelay(type, e, delay) {
-        setTimeout(this.handleEvent.bind(this, type, e), delay)
+    addEvent(type, e, timeAct){
+        this.controlsQueue[this.end ++] = {
+            type : type,
+            e : e,
+            timeAct : timeAct
+        }
+    }
+    removeEvents(cutoffTime){
+        for (var i = this.start; i < this.end; i++){
+            var time = this.controlsQueue[i].timeAct;
+            if (time < cutoffTime){
+                delete this.controlsQueue[i];
+                this.start ++
+            } else{
+                break;
+            }
+        }
+    }
+    handleEvents(timeNow, dt) {
+        for (var i = this.start; i < this.end; i++){
+            var time = this.controlsQueue[i].timeAct;
+            if (time < timeNow + dt && time >= timeNow){
+                this.handleEvent( this.controlsQueue[i].type,  this.controlsQueue[i].e)
+            }
+        }
     }
 }
+
 module.exports = {
-  ControlsDelayer
+  ControlsQueue
 }

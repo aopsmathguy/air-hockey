@@ -12,7 +12,7 @@ const io = socketio(server, {
 });
 
 const { f2 } = require('./fisyx2d.js');
-const { ControlsDelayer } = require('./controlsQueue.js');
+const { ControlsQueue } = require('./controlsQueue.js');
 
 
 var width = 40
@@ -31,7 +31,7 @@ var puck;
 
 var clientPlayer = {};
 var playerClient = {};
-var controlsDelayers = {};
+var controlsQueues = {};
 // controlsDelayer.addEventListener('mousemove', (e) => {
 //     mouse1 = e
 // });
@@ -49,7 +49,7 @@ io.on("connection", function onJoin(client){
     }
     var plyr = clientPlayer[client.id]
     client.emit("plyr", {plyr : plyr})
-    var cd = controlsDelayers[client.id] = new ControlsDelayer()
+    var cd = controlsQueues[client.id] = new ControlsQueue()
     cd.addEventListener("mousemove", (e)=>{
         mouses[plyr] = e
     })
@@ -57,8 +57,7 @@ io.on("connection", function onJoin(client){
         client.emit("test", {clientSendTime : data.clientSendTime, serverTime : Date.now()})
     })
     client.on("mousemove", function(data){
-        var delay = Math.max(data.time - Date.now(), 0)
-        cd.handleEventDelay('mousemove', data.pos, delay)
+        cd.addEvent('mousemove', data.pos, Math.max(data.time, Date.now()/1000))
     })
     client.on('disconnect', function(){
         delete playerClient[plyr]
@@ -111,6 +110,11 @@ function moveTo(body, target, dt) {
     body.applyImpulse(imp)
 }
 function step(dt) {
+    for (var i in controlsQueues){
+        var cd = controlsQueues[i];
+        cd.handleEvents(world.time, dt);
+        cd.removeEvents(world.time)
+    }
     moveTo(pushers[0], mouses[0], dt)
     moveTo(pushers[1], mouses[1], dt)
     world.step(dt)
