@@ -25,7 +25,7 @@ socket.on('plyr', function(data){
 })
 socket.on('gameState', function(data){
 
-    world.time = data.wTime - timeDiff
+    world.time = data.wTime - timeDiff + ping/2
     controlsQueue.removeEvents(world.time)
     for (var i = 0;  i < 2; i++){
         pushers[i].updateDynamics(data.pushersDyn[i])
@@ -84,7 +84,7 @@ document.body.addEventListener('mousemove', (e) => {
         pos : convPos,
         time : timeDiff + Date.now()/1000 + ping/2
     })
-    controlsQueue.addEvent('mousemove', convPos, Date.now()/1000 + ping/2)
+    controlsQueue.addEvent('mousemove', convPos, Date.now()/1000 + ping)
 })
 // document.body.addEventListener('keydown', (e) => {
 //     ball.position = new f2.Vec2(200, 200)
@@ -155,12 +155,7 @@ function displayMouse(ctx) {
         ctx.stroke();
     }
 }
-function gameLoop() {
-    now = Date.now() / 1000
-    while (world.time < now) {
-        step(physicsStep)
-    }
-
+function display(ctx){
     ctx.fillStyle = "rgba(255,255,255,1)";
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     // ctx.globalAlpha = 0.2
@@ -172,14 +167,47 @@ function gameLoop() {
         ctx.scale(-scale, -scale)
         ctx.translate(-width - border, -height - border)
     }
+    ctx.save()
+    ctx.fillStyle = "rgba(0,0,0,0.4)"
+    ctx.font = "5px Arial";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.translate(width/2, height * 0.5)
+    if (plyr == 0){
+        ctx.fillText("Player 1", 0, 0)
+    } else if (plyr == 1){
+        ctx.scale(-1,-1)
+        ctx.fillText("Player 2", 0, 0)
+    } else{
+        ctx.scale(-1,-1)
+        ctx.fillText("Spectating", 0, 0)
+    }
+    ctx.restore()
     ctx.lineWidth = 0.25
     ctx.strokeStyle = "rgba(0,0,0,1)"
     ctx.fillStyle = "rgba(244,244,244,1)"
     world.display(ctx, (now - world.time))
-    ctx.lineWidth = 0.5
-    ctx.strokeStyle = "rgba(255,0,0,1)"
+    // ctx.lineWidth = 0.1
+
     // displayMouse(ctx)
     ctx.restore()
+
+    ctx.save()
+    ctx.fillStyle = "rgba(0,0,0,0.4)"
+    ctx.font = "20px Arial";
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.translate(5, 5)
+    ctx.fillText("ping " + Math.round(1000*ping), 0, 0)
+    ctx.restore()
+}
+function gameLoop() {
+    now = Date.now() / 1000
+    while (world.time < now) {
+        step(physicsStep)
+    }
+
+    display(ctx)
     requestAnimationFrame(gameLoop)
 }
 setupWorld()
