@@ -36,6 +36,11 @@ const constants = {
         elasticity: 0.95,
         kFriction: 0.06,
         sFriction: 0.1
+    },
+    walls : {
+        elasticity : 0.95,
+        kFriction : 0.06,
+        sFriction : 0.1
     }
 }
 var width = constants.width
@@ -106,7 +111,9 @@ function setupWorld() {
     puck = new f2.CircleBody(constants.puckBody)
     // ball = new f2.RectBody({ mass: 1, width: 40, length: 40, position: new f2.Vec2(200, 200) })
     world.addBody(puck);
-
+    var elast = constants.walls.elasticity;
+    var kFric = constants.walls.kFriction;
+    var sFric = constants.walls.sFriction;
     var rightwall = new f2.RectBody({ mass: Infinity, width: height, length: 2, position: new f2.Vec2(width, height / 2), elasticity: elast, kFriction: kFric, sFriction: sFric })
     world.addBody(rightwall);
     var leftwall = new f2.RectBody({ mass: Infinity, width: height, length: 2, position: new f2.Vec2(0, height / 2), elasticity: elast, kFriction: kFric, sFriction: sFric })
