@@ -109,6 +109,7 @@ function setupWorld() {
     world.addBody(pushers[1])
 
     puck = new f2.CircleBody(constants.puckBody)
+    puck.position = new f2.Vec2(width/2, 0.5 * height)
     // ball = new f2.RectBody({ mass: 1, width: 40, length: 40, position: new f2.Vec2(200, 200) })
     world.addBody(puck);
     var elast = constants.walls.elasticity;
