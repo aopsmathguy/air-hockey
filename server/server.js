@@ -73,10 +73,12 @@ io.on("connection", function onJoin(client){
         clientPlayer[client.id] = 1
     } else{
         client.emit("error")
-        return;
     }
     var plyr = clientPlayer[client.id]
     client.emit("start", {constants: constants, plyr : plyr})
+    if (plyr == undefined){
+        return;
+    }
     var cd = controlsQueues[client.id] = new ControlsQueue()
     cd.addEventListener("mousemove", (e)=>{
         mouses[plyr] = e
