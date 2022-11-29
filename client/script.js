@@ -2,7 +2,7 @@ const socket = io("https://air-hockey.onrender.com", { transports: ['websocket',
 socket.on("start", function(data){
     const plyr = data.plyr;
     console.log(plyr)
-    const constants = data.constants
+    const constants = f2.parse(data.constants)
     function pingTest(){
         socket.emit('test', {
             clientSendTime : Date.now()
@@ -26,9 +26,9 @@ socket.on("start", function(data){
         world.time = data.wTime - timeDiff + ping/2
         controlsQueue.removeEvents(world.time)
         for (var i = 0;  i < 2; i++){
-            pushers[i].updateDynamics(data.pushersDyn[i])
+            pushers[i].updateDynamics(f2.parse(data.pushersDyn[i]))
         }
-        puck.updateDynamics(data.puck)
+        puck.updateDynamics(f2.parse(data.puck))
         for (var i = 0;  i < 2; i++){
             mouses[i] = f2.Vec2.copy(data.mouses[i])
         }

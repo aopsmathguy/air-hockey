@@ -926,3 +926,14 @@ f2.AABBvsAABB = function(Amin, Amax, Bmin, Bmax) {
     var dimMean = aDim.add(bDim).multiply(0.5);
     return distCenters.x <= dimMean.x && distCenters.y <= dimMean.y;
 };
+
+f2.stringify = function(obj){
+    return JSON.stringify(obj, function censor(key, value) {
+        return value === Infinity ? "Infinity2374852783457827" : value;
+    });
+}
+f2.parse = function(obj){
+    return JSON.parse(obj, function censor(key, value) {
+        return value === "Infinity2374852783457827" ? Infinity : value;
+    });
+}
