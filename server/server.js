@@ -75,7 +75,7 @@ io.on("connection", function onJoin(client){
         client.emit("error")
     }
     var plyr = clientPlayer[client.id]
-    client.emit("start", {constants: constants, plyr : plyr})
+    client.emit("start", {constants: f2.stringify(constants), plyr : plyr})
     if (plyr == undefined){
         return;
     }
@@ -170,10 +170,10 @@ function emitLoop(){
     io.sockets.emit('gameState', {
         wTime : world.time,
         pushersDyn : [
-            f2.Body.serializeDynamics(pushers[0]),
-            f2.Body.serializeDynamics(pushers[1])
+            f2.stringify(f2.Body.serializeDynamics(pushers[0])),
+            f2.stringify(f2.Body.serializeDynamics(pushers[1]))
         ],
-        puck : f2.Body.serializeDynamics(puck),
+        puck : f2.stringify(f2.Body.serializeDynamics(puck)),
         mouses : mouses
     });
     setTimeout(emitLoop, 30)
