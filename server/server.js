@@ -20,8 +20,8 @@ const constants = {
     goalGap : 14,
     border : 4,
     physicsStep : 0.001,
-    control : 2000,
-    springLimitDist : 20,
+    control : 1000,
+    springLimitDist : 10,
     pusherBody : {
         mass: 6,
         radius: 1.9,
@@ -60,6 +60,8 @@ var puck;
 var clientPlayer = {};
 var playerClient = {};
 var controlsQueues = {};
+
+var score = [0,0];
 // controlsDelayer.addEventListener('mousemove', (e) => {
 //     mouse1 = e
 // });
@@ -75,7 +77,17 @@ io.on("connection", function onJoin(client){
         client.emit("error")
     }
     var plyr = clientPlayer[client.id]
-    client.emit("start", {constants: f2.stringify(constants), plyr : plyr})
+    client.emit("start", {
+        constants: f2.stringify(constants),
+        plyr : plyr
+    })
+    if (plyr != undefined){
+        score = [0, 0]
+        emitScore()
+    } else{
+        client.emit("score", score)
+    }
+
     if (plyr == undefined){
         return;
     }
@@ -152,7 +164,14 @@ function step(dt) {
     moveTo(pushers[0], mouses[0], dt)
     moveTo(pushers[1], mouses[1], dt)
     world.step(dt)
-    if (puck.position.y > height + 5 || puck.position.y < - 5){
+    var [plyr1Win, plyr2Win] = [puck.position.y < 0, puck.position.y > height];
+    if (plyr1Win){
+        score[0] ++;
+    } else if (plyr2Win){
+        score[1] ++;
+    }
+    if (plyr1Win || plyr2Win){
+        emitScore();
         puck.position = new f2.Vec2(width/2, height/2)
         puck.velocity = new f2.Vec2(0,0)
         puck.angle = 0
@@ -177,6 +196,9 @@ function emitLoop(){
         mouses : mouses
     });
     setTimeout(emitLoop, 30)
+}
+function emitScore(){
+    io.sockets.emit("score", score)
 }
 setupWorld()
 gameLoop()
