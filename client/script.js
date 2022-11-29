@@ -1,4 +1,6 @@
 const socket = io("https://air-hockey.onrender.com", { transports: ['websocket', 'polling', 'flashsocket'] })
+// const socket = io("http://localhost:3000", { transports: ['websocket', 'polling', 'flashsocket'] })
+var score;
 socket.on("start", function(data){
     const plyr = data.plyr;
     console.log(plyr)
@@ -32,6 +34,9 @@ socket.on("start", function(data){
         for (var i = 0;  i < 2; i++){
             mouses[i] = f2.Vec2.copy(data.mouses[i])
         }
+    })
+    socket.on('score', function(sc){
+        score = sc;
     })
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect(), // abs. size of element
@@ -95,6 +100,8 @@ socket.on("start", function(data){
     var world;
     var pushers = [];
     var puck;
+
+    score = [0,0];
     function setupWorld() {
         world = new f2.World({ gravity: 0, scale: 1, gridSize: 4, time: Date.now() / 1000 });
 
@@ -144,6 +151,13 @@ socket.on("start", function(data){
         moveTo(pushers[0], mouses[0], dt)
         moveTo(pushers[1], mouses[1], dt)
         world.step(dt)
+        var [plyr1Win, plyr2Win] = [puck.position.y < 0, puck.position.y > height];
+        if (plyr1Win || plyr2Win){
+            puck.position = new f2.Vec2(width/2, height/2)
+            puck.velocity = new f2.Vec2(0,0)
+            puck.angle = 0
+            puck.angleVelocity = 0
+        }
     }
     function displayMouse(ctx) {
         if (plyr != undefined){
@@ -183,7 +197,11 @@ socket.on("start", function(data){
             ctx.scale(-1,-1)
             ctx.fillText("Spectating", 0, 0)
         }
+        ctx.translate(0, 5)
+        ctx.font = "3px Arial";
+        ctx.fillText(score[0] + "-" + score[1], 0, 0)
         ctx.restore()
+
         ctx.lineWidth = 0.25
         ctx.strokeStyle = "rgba(0,0,0,1)"
         ctx.fillStyle = "rgba(244,244,244,1)"
