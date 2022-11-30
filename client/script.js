@@ -126,6 +126,16 @@ document.body.addEventListener("touchmove", function (e) {
     });
     document.body.dispatchEvent(mouseEvent);
 }, false);
+
+window.addEventListener("scroll", preventMotion, false);
+window.addEventListener("touchmove", preventMotion, false);
+
+function preventMotion(event)
+{
+    window.scrollTo(0, 0);
+    event.preventDefault();
+    event.stopPropagation();
+}
 // document.body.addEventListener('keydown', (e) => {
 //     ball.position = new f2.Vec2(200, 200)
 //     ball.angle = 0
