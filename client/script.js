@@ -103,6 +103,29 @@ document.body.addEventListener('mousemove', (e) => {
     })
     controlsQueue.addEvent('mousemove', convPos, Date.now()/1000 + ping)
 })
+document.body.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    var touch = e.touches[0];
+    var mouseEvent = new MouseEvent("mousedown", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    document.body.dispatchEvent(mouseEvent);
+}, false);
+document.body.addEventListener("touchend", function (e) {
+    e.preventDefault();
+    var mouseEvent = new MouseEvent("mouseup", {});
+    document.body.dispatchEvent(mouseEvent);
+}, false);
+document.body.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    var touch = e.touches[0];
+    var mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    document.body.dispatchEvent(mouseEvent);
+}, false);
 // document.body.addEventListener('keydown', (e) => {
 //     ball.position = new f2.Vec2(200, 200)
 //     ball.angle = 0
