@@ -111,6 +111,11 @@ document.body.addEventListener("touchstart", function (e) {
         clientY: touch.clientY
     });
     document.body.dispatchEvent(mouseEvent);
+    mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    document.body.dispatchEvent(mouseEvent);
 }, false);
 document.body.addEventListener("touchend", function (e) {
     e.preventDefault();
