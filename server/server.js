@@ -99,7 +99,7 @@ io.on("connection", function onJoin(client){
         client.emit("test", {clientSendTime : data.clientSendTime, serverTime : Date.now()})
     })
     client.on("mousemove", function(data){
-        cd.addEvent('mousemove', data.pos, Math.max(data.time, Date.now()/1000))
+        cd.addEvent(data.pos, Math.max(data.time, Date.now()/1000))
     })
     client.on('disconnect', function(){
         delete playerClient[plyr]
