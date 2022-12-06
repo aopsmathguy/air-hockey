@@ -97,11 +97,12 @@ controlsQueue.addEventListener('mousemove', (e) => {
 })
 document.body.addEventListener('mousemove', (e) => {
     var convPos = mouseToBoard(getMousePos(canvas, e))
+    convPos.type = 'mousemove';
     socket.emit("mousemove", {
         pos : convPos,
         time : timeDiff + Date.now()/1000 + ping/2
     })
-    controlsQueue.addEvent('mousemove', convPos, Date.now()/1000 + ping)
+    controlsQueue.addEvent(convPos, Date.now()/1000 + ping)
 })
 document.body.addEventListener("touchstart", function (e) {
     e.preventDefault();
