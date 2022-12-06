@@ -23,33 +23,36 @@ var ControlsQueue = class {
             }
         }
     }
-    addEvent(type, e, timeAct){
-        this.controlsQueue[this.end ++] = {
-            type : type,
-            e : e,
-            timeAct : timeAct
+    addEvent(e, timeAct) {
+        this.controlsQueue[this.end++] = {
+            type: e.type,
+            e: e,
+            timeAct: timeAct
         }
     }
-    removeEvents(cutoffTime){
-        for (var i = this.start; i < this.end; i++){
+    removeEvents(cutoffTime) {
+        for (var i = this.start; i < this.end; i++) {
             var time = this.controlsQueue[i].timeAct;
-            if (time < cutoffTime){
+            if (time < cutoffTime) {
                 delete this.controlsQueue[i];
-                this.start ++
-            } else{
+                this.start++
+            } else {
                 break;
             }
         }
     }
     handleEvents(timeNow, dt) {
-        for (var i = this.start; i < this.end; i++){
+        for (var i = this.start; i < this.end; i++) {
             var time = this.controlsQueue[i].timeAct;
-            if (time < timeNow + dt && time >= timeNow){
-                this.handleEvent( this.controlsQueue[i].type,  this.controlsQueue[i].e)
+            if (time < timeNow && time >= timeNow - dt) {
+                this.handleEvent(this.controlsQueue[i].type, this.controlsQueue[i].e)
+                // console.log(this.controlsQueue[i].type)
             }
+
         }
     }
 }
+
 
 module.exports = {
   ControlsQueue
