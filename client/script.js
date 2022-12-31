@@ -33,6 +33,7 @@ function pingTest(){
 }
 var ping = 0;
 var timeDiff = 0;
+var delay = 0;
 socket.on('test', function(data){
     var clientRecieveTime = Date.now()
     var clientSendTime = data.clientSendTime
@@ -42,10 +43,11 @@ socket.on('test', function(data){
 
     ping += 0.3 * (p/1000 - ping)
     timeDiff += 0.3 * (td/1000 - timeDiff)
+    delay = 0;
 })
 socket.on('gameState', function(data){
 
-    world.time = data.wTime - timeDiff + ping/2
+    world.time = data.wTime - timeDiff + delay;
     controlsQueue.removeEvents(world.time)
     for (var i = 0;  i < 2; i++){
         pushers[i].updateDynamics(f2.parse(data.pushersDyn[i]))
@@ -100,9 +102,9 @@ document.body.addEventListener('mousemove', (e) => {
     convPos.type = 'mousemove';
     socket.emit("mousemove", {
         pos : convPos,
-        time : timeDiff + Date.now()/1000 + ping/2
+        time : timeDiff + Date.now()/1000 + delay
     })
-    controlsQueue.addEvent(convPos, Date.now()/1000 + ping)
+    controlsQueue.addEvent(convPos, Date.now()/1000 + ping/2 + delay)
 })
 document.body.addEventListener("touchstart", function (e) {
     e.preventDefault();
