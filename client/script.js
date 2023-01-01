@@ -42,12 +42,15 @@ socket.on('test', function(data){
     var td = serverTime - (clientRecieveTime + clientSendTime)/2
 
     ping += 0.3 * (p/1000 - ping)
+    // ping = 1;
     timeDiff += 0.3 * (td/1000 - timeDiff)
-    delay = 0;
+
+    delay = 0.5 * ping;
+    // delay = ping
 })
 socket.on('gameState', function(data){
 
-    world.time = data.wTime - timeDiff + delay;
+    world.time = data.wTime - timeDiff;
     controlsQueue.removeEvents(world.time)
     for (var i = 0;  i < 2; i++){
         pushers[i].updateDynamics(f2.parse(data.pushersDyn[i]))
@@ -104,7 +107,7 @@ document.body.addEventListener('mousemove', (e) => {
         pos : convPos,
         time : timeDiff + Date.now()/1000 + delay
     })
-    controlsQueue.addEvent(convPos, Date.now()/1000 + ping/2 + delay)
+    controlsQueue.addEvent(convPos, Date.now()/1000 + delay)
 })
 document.body.addEventListener("touchstart", function (e) {
     e.preventDefault();
@@ -224,7 +227,7 @@ function displayMouse(ctx) {
         ctx.stroke();
     }
 }
-function display(ctx){
+function display(ctx, now){
     ctx.fillStyle = "rgba(255,255,255,1)";
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     // ctx.globalAlpha = 0.2
@@ -273,14 +276,33 @@ function display(ctx){
     ctx.translate(5, 5)
     ctx.fillText("ping " + Math.round(1000*ping), 0, 0)
     ctx.restore()
+
+    ctx.save()
+    ctx.fillStyle = "rgba(0,0,0,0.4)"
+    ctx.font = "20px Arial";
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'top';
+    ctx.translate(canvas.width - 5, 5)
+    ctx.fillText("fps " + Math.round(fps), 0, 0)
+    ctx.restore()
 }
+var prevTimes = [];
+var fps = 0;
 function gameLoop() {
+    var now = Date.now() / 1000
+    var old = prevTimes[0];
+    fps = 1/((now - old)/prevTimes.length)
+
+    prevTimes.push(now);
+    if (prevTimes.length > 10){
+        prevTimes.shift();
+    }
+
     if (world){
-        now = Date.now() / 1000
         while (world.time < now) {
             step(physicsStep)
         }
-        display(ctx)
+        display(ctx, now)
     }
     requestAnimationFrame(gameLoop)
 }
